@@ -1,10 +1,11 @@
 let img;
 let music;
-let numSegments = 300;
+let numSegments = 50;
 let segments = [];
 let button;
 let sliderVolume;
 let sliderRate;
+let fft;
 
 function preload() {
   img = loadImage('assets/Claude_Monet.jpg');
@@ -14,6 +15,8 @@ function preload() {
 function setup() {
   // creat canvas to contain both img and button
   createCanvas(windowWidth, windowHeight - 50);
+  // analyse music
+  fft = new p5.FFT(0.9, 256); 
 
   // The technique about the buttons was learned from https://www.youtube.com/watch?v=Pn1g1wjxl_0&list=PLRqwX-V7Uu6aFcVjlDAkkGIixw70s7jpW&index=1
   // Create the play button and set the mouse click event
@@ -33,9 +36,11 @@ function draw() {
   music.rate(sliderRate.value());
   placeButton()
   
-  // Iterate over the array and draw the rectangle
+  // 
   for (const segment of segments) {
-    segment.draw();
+    let frequency = fft.analyze();  //hold data
+    let MusicValue = frequency[int(random(frequency.length))];  // hold a int value from music data
+    segment.draw(MusicValue);
   }
 }
 
@@ -86,7 +91,7 @@ function calculateSegments(image, numSegments) {
   }
 }
 
-// create a class to store information of segments
+// create a class to store information of segments and draw rect
 class ImageSegment {
   constructor(x, y, width, height, color) {
     this.x = x;
@@ -95,11 +100,19 @@ class ImageSegment {
     this.height = height;
     this.color = color;
   }
-// draw segments
-  draw() {
-    fill(this.color);
+  // draw dynamic rect by music data
+  draw(MusicValue) {
+    // use map to set the new size of rect
+    let changeSize = map(MusicValue, 0, 255, this.width * 1, this.width * 1.2);
+    // change r,g,b to change color
+    let changeColor = color(
+      red(this.color) * (1 + MusicValue / 255),
+      green(this.color) * (1 + MusicValue / 255),
+      blue(this.color) * (1 + MusicValue / 255)
+    );
+    fill(changeColor);
     noStroke();
-    rect(this.x, this.y, this.width, this.height);
+    rect(this.x + (this.width - changeSize) / 2, this.y + (this.height - changeSize) / 2, changeSize, changeSize);
   }
 }
 // Update image to fit window size
