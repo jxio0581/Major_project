@@ -1,6 +1,6 @@
 let img;
 let music;
-let numSegments = 80;
+let numSegments = 55;
 let segments = [];
 let button;
 let sliderVolume;
@@ -137,6 +137,10 @@ class ImageSegment {
     this.currentColor = lerpColor(this.currentColor, this.targetColor, 0.15);
     fill(this.currentColor);
     noStroke();
+    // The technique about Easiest Glow Effect was learned from https://www.youtube.com/watch?v=iIWH3IUYHzM
+    // creat glow effect of rect
+    drawingContext.shadowBlur = 16;
+    drawingContext.shadowColor = color(247,233,177);
     rect(this.x + (this.width - this.currentWidth) / 2, this.y + (this.height - this.currentWidth) / 2, this.currentWidth, this.currentHeight);
   }
 }
